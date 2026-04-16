@@ -1,0 +1,30 @@
+{{ define "post.html" }}
+{{ template "site_head" . }}
+{{ template "site_header" . }}
+<main class="site-main">
+{{ template "post_content" . }}
+</main>
+{{ template "site_footer" . }}
+{{ end }}
+
+{{ define "post_content" }}
+<article class="post-layout">
+  <a class="back-link" href="/">&lt;- home</a>
+  <header class="post-header">
+    <p class="hero__eyebrow">Post</p>
+    <h1>{{ .Post.Title }}</h1>
+    <div class="post-header__meta">
+      <time datetime="{{ isoDate .Post.PublishedAt }}">{{ formatDate .Post.PublishedAt }}</time>
+      {{ if .Post.Author }}<span>{{ .Post.Author }}</span>{{ end }}
+      <span>{{ .Post.ReadTime }} min read</span>
+    </div>
+    {{ if .Post.Tags }}
+    <div class="tag-row">
+      {{ range .Post.Tags }}<span class="tag">{{ . }}</span>{{ end }}
+    </div>
+    {{ end }}
+  </header>
+
+  <div class="markdown-body">{{ .Post.HTML }}</div>
+</article>
+{{ end }}

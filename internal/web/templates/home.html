@@ -1,0 +1,41 @@
+{{ define "home.html" }}
+{{ template "site_head" . }}
+{{ template "site_header" . }}
+<main class="site-main">
+{{ template "home_content" . }}
+</main>
+{{ template "site_footer" . }}
+{{ end }}
+
+{{ define "home_content" }}
+<section class="hero">
+  <p class="hero__eyebrow">Journal / blog / notes</p>
+  <h1>Writing from the workbench.</h1>
+  <p class="hero__lede">A simple markdown-backed blog with room for dense footnotes, inline context, and code that still looks like code.</p>
+</section>
+
+<section class="post-list" aria-label="Posts">
+  {{ if .Posts }}
+    {{ range .Posts }}
+    <article class="post-card">
+      <div class="post-card__meta">
+        <time datetime="{{ isoDate .PublishedAt }}">{{ formatDate .PublishedAt }}</time>
+        <span>{{ .ReadTime }} min read</span>
+      </div>
+      <h2><a href="/posts/{{ .Slug }}">{{ .Title }}</a></h2>
+      <p>{{ .Description }}</p>
+      {{ if .Tags }}
+      <div class="tag-row">
+        {{ range .Tags }}<span class="tag">{{ . }}</span>{{ end }}
+      </div>
+      {{ end }}
+    </article>
+    {{ end }}
+  {{ else }}
+    <article class="empty-state">
+      <h2>No posts yet.</h2>
+      <p>Add a markdown file to `content/posts` and it will show up here.</p>
+    </article>
+  {{ end }}
+</section>
+{{ end }}
