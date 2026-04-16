@@ -17,6 +17,17 @@ type Post struct {
 	ReadTime    int
 }
 
+type Page struct {
+	Slug        string
+	Title       string
+	Description string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	HTML        template.HTML
+	Excerpt     string
+	ReadTime    int
+}
+
 type Tooltip struct {
 	Slug  string
 	Title string

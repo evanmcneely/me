@@ -8,13 +8,8 @@
 {{ end }}
 
 {{ define "home_content" }}
-<section class="hero">
-  <p class="hero__eyebrow">Journal / blog / notes</p>
-  <h1>Writing from the workbench.</h1>
-  <p class="hero__lede">A simple markdown-backed blog with room for dense footnotes, inline context, and code that still looks like code.</p>
-</section>
-
-<section class="post-list" aria-label="Posts">
+<section class="content-list" aria-label="Posts">
+  <h2 class="content-list__title">Blog Posts</h2>
   {{ if .Posts }}
     {{ range .Posts }}
     <article class="post-card">
@@ -35,6 +30,26 @@
     <article class="empty-state">
       <h2>No posts yet.</h2>
       <p>Add a markdown file to `content/posts` and it will show up here.</p>
+    </article>
+  {{ end }}
+</section>
+
+<section class="content-list" aria-label="Pages">
+  <h2 class="content-list__title">Pages</h2>
+  {{ if .Pages }}
+    {{ range .Pages }}
+    <article class="post-card">
+      <div class="post-card__meta">
+        <time datetime="{{ isoDate .UpdatedAt }}">Updated {{ formatDate .UpdatedAt }}</time>
+        <span>Created {{ formatDate .CreatedAt }}</span>
+      </div>
+      <h2><a href="/{{ .Slug }}">{{ .Title }}</a></h2>
+      <p>{{ .Description }}</p>
+    </article>
+    {{ end }}
+  {{ else }}
+    <article class="empty-state">
+      <h2>No pages yet.</h2>
     </article>
   {{ end }}
 </section>

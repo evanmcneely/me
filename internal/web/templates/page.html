@@ -1,0 +1,24 @@
+{{ define "page.html" }}
+{{ template "site_head" . }}
+{{ template "site_header" . }}
+<main class="site-main">
+{{ template "page_content" . }}
+</main>
+{{ template "site_footer" . }}
+{{ end }}
+
+{{ define "page_content" }}
+<article class="post-layout">
+  <header class="post-header">
+    <p class="hero__eyebrow">Page</p>
+    <h1>{{ .Page.Title }}</h1>
+    <div class="post-header__meta">
+      <time datetime="{{ isoDate .Page.UpdatedAt }}">Updated {{ formatDate .Page.UpdatedAt }}</time>
+      <span>Created {{ formatDate .Page.CreatedAt }}</span>
+      <span>{{ .Page.ReadTime }} min read</span>
+    </div>
+  </header>
+
+  <div class="markdown-body">{{ .Page.HTML }}</div>
+</article>
+{{ end }}

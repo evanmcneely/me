@@ -14,18 +14,11 @@
 
 {{ define "site_header" }}
     <header class="site-header">
-      <div class="site-header__inner">
-        <a class="site-title" href="/">{{ .SiteTitle }}</a>
-        <p class="site-tagline">{{ .Tagline }}</p>
-      </div>
+      <a class="site-title" href="/">{{ .SiteTitle }}</a>
     </header>
 {{ end }}
 
 {{ define "site_footer" }}
-    <footer class="site-footer">
-      <p>{{ .SiteTitle }} / {{ .Year }}</p>
-      <p>Markdown source, rendered in Go, cached in SQLite.</p>
-    </footer>
   </div>
   <script src="/static/site.js" defer></script>
 </body>

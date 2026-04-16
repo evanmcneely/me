@@ -34,6 +34,20 @@ type CachedTooltip struct {
 	HTML       string
 }
 
+type CachedPage struct {
+	Slug        string
+	SourcePath  string
+	ModUnix     int64
+	Size        int64
+	Title       string
+	Description string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	HTML        string
+	Excerpt     string
+	ReadTime    int
+}
+
 type SQLiteStore struct {
 	db *sql.DB
 }
@@ -163,6 +177,87 @@ func (s *SQLiteStore) GetTooltip(slug string, modUnix, size int64) (*CachedToolt
 	return &tooltip, nil
 }
 
+func (s *SQLiteStore) GetPage(slug string, modUnix, size int64) (*CachedPage, error) {
+	const query = `
+		SELECT slug, source_path, mod_unix, size_bytes, title, description, created_at, updated_at, html, excerpt, read_time
+		FROM rendered_pages
+		WHERE slug = ? AND mod_unix = ? AND size_bytes = ?`
+
+	row := s.db.QueryRow(query, slug, modUnix, size)
+	var page CachedPage
+	var createdAt string
+	var updatedAt string
+	if err := row.Scan(
+		&page.Slug,
+		&page.SourcePath,
+		&page.ModUnix,
+		&page.Size,
+		&page.Title,
+		&page.Description,
+		&createdAt,
+		&updatedAt,
+		&page.HTML,
+		&page.Excerpt,
+		&page.ReadTime,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if createdAt != "" {
+		parsedTime, parseErr := time.Parse(time.RFC3339, createdAt)
+		if parseErr != nil {
+			return nil, fmt.Errorf("parse cached page created date: %w", parseErr)
+		}
+		page.CreatedAt = parsedTime
+	}
+	if updatedAt != "" {
+		parsedTime, parseErr := time.Parse(time.RFC3339, updatedAt)
+		if parseErr != nil {
+			return nil, fmt.Errorf("parse cached page updated date: %w", parseErr)
+		}
+		page.UpdatedAt = parsedTime
+	}
+
+	return &page, nil
+}
+
+func (s *SQLiteStore) UpsertPage(page CachedPage) error {
+	const query = `
+		INSERT INTO rendered_pages (
+			slug, source_path, mod_unix, size_bytes, title, description, created_at, updated_at, html, excerpt, read_time
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		ON CONFLICT(slug) DO UPDATE SET
+			source_path = excluded.source_path,
+			mod_unix = excluded.mod_unix,
+			size_bytes = excluded.size_bytes,
+			title = excluded.title,
+			description = excluded.description,
+			created_at = excluded.created_at,
+			updated_at = excluded.updated_at,
+			html = excluded.html,
+			excerpt = excluded.excerpt,
+			read_time = excluded.read_time`
+
+	_, err := s.db.Exec(
+		query,
+		page.Slug,
+		page.SourcePath,
+		page.ModUnix,
+		page.Size,
+		page.Title,
+		page.Description,
+		page.CreatedAt.Format(time.RFC3339),
+		page.UpdatedAt.Format(time.RFC3339),
+		page.HTML,
+		page.Excerpt,
+		page.ReadTime,
+	)
+	return err
+}
+
 func (s *SQLiteStore) UpsertTooltip(tooltip CachedTooltip) error {
 	const query = `
 		INSERT INTO rendered_tooltips (slug, source_path, mod_unix, size_bytes, title, html)
@@ -202,6 +297,20 @@ func (s *SQLiteStore) migrate() error {
 			size_bytes INTEGER NOT NULL,
 			title TEXT NOT NULL,
 			html TEXT NOT NULL
+		);
+
+		CREATE TABLE IF NOT EXISTS rendered_pages (
+			slug TEXT PRIMARY KEY,
+			source_path TEXT NOT NULL,
+			mod_unix INTEGER NOT NULL,
+			size_bytes INTEGER NOT NULL,
+			title TEXT NOT NULL,
+			description TEXT NOT NULL,
+			created_at TEXT NOT NULL,
+			updated_at TEXT NOT NULL,
+			html TEXT NOT NULL,
+			excerpt TEXT NOT NULL,
+			read_time INTEGER NOT NULL
 		);`
 
 	_, err := s.db.Exec(schema)

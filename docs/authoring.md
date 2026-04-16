@@ -1,6 +1,6 @@
 # Authoring notes
 
-Posts live in `content/posts` and tooltips live in `content/tooltips`.
+Posts live in `content/posts`, pages live in `content/pages`, and tooltips live in `content/tooltips`.
 
 ## Frontmatter
 
@@ -15,6 +15,17 @@ date: 2026-04-15
 tags:
   - go
   - writing
+---
+```
+
+Pages work the same way, but they publish at the site root using the markdown filename as the slug. For example, `content/pages/about.md` becomes `/about`.
+
+```yaml
+---
+title: About
+description: What this site is for.
+created: 2026-04-01
+updated: 2026-04-16
 ---
 ```
 

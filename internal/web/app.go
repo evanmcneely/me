@@ -26,8 +26,6 @@ type App struct {
 
 type siteData struct {
 	SiteTitle string
-	Tagline   string
-	Year      int
 	ChromaCSS template.CSS
 	PageTitle string
 	Path      string
@@ -36,11 +34,17 @@ type siteData struct {
 type homeData struct {
 	siteData
 	Posts []blog.Post
+	Pages []blog.Page
 }
 
 type postData struct {
 	siteData
 	Post blog.Post
+}
+
+type pageData struct {
+	siteData
+	Page blog.Page
 }
 
 func NewApp(service *blog.Service, chromaCSS string) (*App, error) {
@@ -90,7 +94,7 @@ func (a *App) Routes() http.Handler {
 
 func (a *App) handleHome(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		a.handlePage(w, r)
 		return
 	}
 
@@ -100,9 +104,16 @@ func (a *App) handleHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	pages, err := a.service.ListPages(r.Context())
+	if err != nil {
+		http.Error(w, "unable to load pages", http.StatusInternalServerError)
+		return
+	}
+
 	a.render(w, "home.html", homeData{
 		siteData: a.site("Home", r.URL.Path),
 		Posts:    posts,
+		Pages:    pages,
 	})
 }
 
@@ -131,6 +142,29 @@ func (a *App) handlePost(w http.ResponseWriter, r *http.Request) {
 	a.render(w, "post.html", postData{
 		siteData: a.site(post.Title, r.URL.Path),
 		Post:     post,
+	})
+}
+
+func (a *App) handlePage(w http.ResponseWriter, r *http.Request) {
+	slug := strings.TrimPrefix(r.URL.Path, "/")
+	if slug == "" || strings.Contains(slug, "/") {
+		http.NotFound(w, r)
+		return
+	}
+
+	page, err := a.service.Page(r.Context(), slug)
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			http.NotFound(w, r)
+			return
+		}
+		http.Error(w, "unable to load page", http.StatusInternalServerError)
+		return
+	}
+
+	a.render(w, "page.html", pageData{
+		siteData: a.site(page.Title, r.URL.Path),
+		Page:     page,
 	})
 }
 
@@ -170,8 +204,6 @@ func (a *App) render(w http.ResponseWriter, name string, data any) {
 func (a *App) site(pageTitle, path string) siteData {
 	return siteData{
 		SiteTitle: "Evan McNeely",
-		Tagline:   "Notes, essays, and field reports in markdown.",
-		Year:      time.Now().Year(),
 		ChromaCSS: a.chromaCSS,
 		PageTitle: pageTitle,
 		Path:      path,
