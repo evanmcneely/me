@@ -1,0 +1,17 @@
+{{ define "error.html" }}
+{{ template "site_head" . }}
+{{ template "site_header" . }}
+<main class="site-main">
+{{ template "error_content" . }}
+</main>
+{{ template "site_footer" . }}
+{{ end }}
+
+{{ define "error_content" }}
+<section class="content-list empty-state error-state">
+  <p class="hero__eyebrow">{{ .StatusCode }}</p>
+  <h1>{{ .Heading }}</h1>
+  <p>{{ .Message }}</p>
+  <p><a href="/">Back home</a></p>
+</section>
+{{ end }}

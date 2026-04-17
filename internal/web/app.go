@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -46,6 +47,13 @@ type pageData struct {
 	Page blog.Page
 }
 
+type errorData struct {
+	siteData
+	StatusCode int
+	Heading    string
+	Message    string
+}
+
 func NewApp(service *blog.Service, chromaCSS string) (*App, error) {
 	tmpl, err := template.New("").Funcs(template.FuncMap{
 		"formatDate": func(t time.Time) string {
@@ -84,7 +92,7 @@ func (a *App) Routes() http.Handler {
 	mux.HandleFunc("/", a.handleHome)
 	mux.HandleFunc("/posts/", a.handlePost)
 	mux.HandleFunc("/tooltips/", a.handleTooltip)
-	return mux
+	return a.recoverMiddleware(mux)
 }
 
 func (a *App) handleHome(w http.ResponseWriter, r *http.Request) {
@@ -95,13 +103,13 @@ func (a *App) handleHome(w http.ResponseWriter, r *http.Request) {
 
 	posts, err := a.service.ListPosts(r.Context())
 	if err != nil {
-		http.Error(w, "unable to load posts", http.StatusInternalServerError)
+		a.serverError(w, r, "Unable to load posts right now.")
 		return
 	}
 
 	pages, err := a.service.ListPages(r.Context())
 	if err != nil {
-		http.Error(w, "unable to load pages", http.StatusInternalServerError)
+		a.serverError(w, r, "Unable to load pages right now.")
 		return
 	}
 
@@ -114,23 +122,23 @@ func (a *App) handleHome(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handlePost(w http.ResponseWriter, r *http.Request) {
 	if !strings.HasPrefix(r.URL.Path, "/posts/") {
-		http.NotFound(w, r)
+		a.notFound(w, r)
 		return
 	}
 
 	slug := strings.TrimPrefix(r.URL.Path, "/posts/")
 	if slug == "" || strings.Contains(slug, "/") {
-		http.NotFound(w, r)
+		a.notFound(w, r)
 		return
 	}
 
 	post, err := a.service.Post(r.Context(), slug)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
-			http.NotFound(w, r)
+			a.notFound(w, r)
 			return
 		}
-		http.Error(w, "unable to load post", http.StatusInternalServerError)
+		a.serverError(w, r, "Unable to load that post right now.")
 		return
 	}
 
@@ -143,17 +151,17 @@ func (a *App) handlePost(w http.ResponseWriter, r *http.Request) {
 func (a *App) handlePage(w http.ResponseWriter, r *http.Request) {
 	slug := strings.TrimPrefix(r.URL.Path, "/")
 	if slug == "" || strings.Contains(slug, "/") {
-		http.NotFound(w, r)
+		a.notFound(w, r)
 		return
 	}
 
 	page, err := a.service.Page(r.Context(), slug)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
-			http.NotFound(w, r)
+			a.notFound(w, r)
 			return
 		}
-		http.Error(w, "unable to load page", http.StatusInternalServerError)
+		a.serverError(w, r, "Unable to load that page right now.")
 		return
 	}
 
@@ -165,23 +173,23 @@ func (a *App) handlePage(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handleTooltip(w http.ResponseWriter, r *http.Request) {
 	if !strings.HasPrefix(r.URL.Path, "/tooltips/") {
-		http.NotFound(w, r)
+		a.renderTooltipError(w, http.StatusNotFound, "Tooltip not found.")
 		return
 	}
 
 	slug := strings.TrimPrefix(r.URL.Path, "/tooltips/")
 	if slug == "" || strings.Contains(slug, "/") {
-		http.NotFound(w, r)
+		a.renderTooltipError(w, http.StatusNotFound, "Tooltip not found.")
 		return
 	}
 
 	tooltip, err := a.service.Tooltip(r.Context(), slug)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
-			http.NotFound(w, r)
+			a.renderTooltipError(w, http.StatusNotFound, "Tooltip not found.")
 			return
 		}
-		http.Error(w, "unable to load tooltip", http.StatusInternalServerError)
+		a.renderTooltipError(w, http.StatusInternalServerError, "Tooltip unavailable right now.")
 		return
 	}
 
@@ -190,10 +198,51 @@ func (a *App) handleTooltip(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) render(w http.ResponseWriter, name string, data any) {
+	a.renderStatus(w, http.StatusOK, name, data)
+}
+
+func (a *App) renderStatus(w http.ResponseWriter, status int, name string, data any) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(status)
 	if err := a.templates.ExecuteTemplate(w, name, data); err != nil {
 		http.Error(w, "template error", http.StatusInternalServerError)
 	}
+}
+
+func (a *App) notFound(w http.ResponseWriter, r *http.Request) {
+	a.renderStatus(w, http.StatusNotFound, "error.html", errorData{
+		siteData:   a.site("Not Found", r.URL.Path),
+		StatusCode: http.StatusNotFound,
+		Heading:    "Not Found",
+		Message:    "That page does not exist, or it may have moved.",
+	})
+}
+
+func (a *App) serverError(w http.ResponseWriter, r *http.Request, message string) {
+	a.renderStatus(w, http.StatusInternalServerError, "error.html", errorData{
+		siteData:   a.site("Server Error", r.URL.Path),
+		StatusCode: http.StatusInternalServerError,
+		Heading:    "Opps!",
+		Message:    message,
+	})
+}
+
+func (a *App) renderTooltipError(w http.ResponseWriter, status int, message string) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(status)
+	_, _ = fmt.Fprintf(w, `<div class="tooltip-card"><p>%s</p></div>`, template.HTMLEscapeString(message))
+}
+
+func (a *App) recoverMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if recovered := recover(); recovered != nil {
+				log.Printf("panic serving %s: %v", r.URL.Path, recovered)
+				a.serverError(w, r, "Something went wrong on our side.")
+			}
+		}()
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (a *App) site(pageTitle, path string) siteData {
