@@ -10,7 +10,6 @@
 {{ define "post_content" }}
 <article class="post-layout">
   <header class="post-header">
-    <p class="hero__eyebrow">Post</p>
     <h1>{{ .Post.Title }}</h1>
     <div class="post-header__meta">
       <time datetime="{{ isoDate .Post.PublishedAt }}">{{ formatDate .Post.PublishedAt }}</time>

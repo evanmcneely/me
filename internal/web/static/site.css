@@ -10,7 +10,7 @@
   --surface: #e1e1e1;
   --text: #303432;
   --muted: #626765;
-  /* --heading: #dd1c1a; */
+  --heading-legacy: #dd1c1a;
   --heading: #086788;
   --link: #086788;
   --link-hover: #07a0c3;
@@ -149,7 +149,7 @@ samp {
 
 .content-list__title {
   margin: 0 0 0.75rem;
-  color: var(--heading);
+  color: var(--heading-legacy);
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -198,6 +198,7 @@ samp {
 
 .post-header h1 {
   margin: 0.35rem 0 1rem;
+  color: var(--heading-legacy);
   font-size: clamp(1.6rem, 4.5vw, 2.7rem);
 }
 
