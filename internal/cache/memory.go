@@ -14,7 +14,6 @@ type CachedPost struct {
 	Description string
 	Author      string
 	PublishedAt time.Time
-	Tags        []string
 	HTML        string
 	Excerpt     string
 	ReadTime    int
@@ -72,7 +71,6 @@ func (s *Store) GetPost(slug string, modUnix, size int64) (*CachedPost, error) {
 	}
 
 	copy := post
-	copy.Tags = append([]string(nil), post.Tags...)
 	return &copy, nil
 }
 
@@ -80,7 +78,6 @@ func (s *Store) UpsertPost(post CachedPost) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	post.Tags = append([]string(nil), post.Tags...)
 	s.posts[post.Slug] = post
 	return nil
 }

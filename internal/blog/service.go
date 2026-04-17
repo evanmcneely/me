@@ -30,11 +30,10 @@ type Service struct {
 }
 
 type postFrontmatter struct {
-	Title       string   `yaml:"title"`
-	Description string   `yaml:"description"`
-	Author      string   `yaml:"author"`
-	Date        string   `yaml:"date"`
-	Tags        []string `yaml:"tags"`
+	Title       string `yaml:"title"`
+	Description string `yaml:"description"`
+	Author      string `yaml:"author"`
+	Date        string `yaml:"date"`
 }
 
 type pageFrontmatter struct {
@@ -251,7 +250,6 @@ func (s *Service) renderPost(path, slug string, info os.FileInfo) (cache.CachedP
 		Description: description,
 		Author:      strings.TrimSpace(meta.Author),
 		PublishedAt: publishedAt,
-		Tags:        meta.Tags,
 		HTML:        html,
 		Excerpt:     excerpt(plain, 220),
 		ReadTime:    readTime(plain),
@@ -358,7 +356,6 @@ func hydratePost(cached cache.CachedPost) Post {
 		Description: cached.Description,
 		Author:      cached.Author,
 		PublishedAt: cached.PublishedAt,
-		Tags:        cached.Tags,
 		HTML:        template.HTML(cached.HTML),
 		Excerpt:     cached.Excerpt,
 		ReadTime:    cached.ReadTime,

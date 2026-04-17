@@ -12,9 +12,6 @@ title: Example title
 description: Short summary for the home page.
 author: Evan McNeely
 date: 2026-04-15
-tags:
-  - go
-  - writing
 ---
 ```
 

@@ -3,9 +3,6 @@ title: Building a markdown blog in Go
 description: Notes on a tiny blog stack with markdown posts, in-memory render caching, and inline hover notes.
 author: Evan McNeely
 date: 2026-04-15
-tags:
-  - go
-  - markdown
 ---
 
 The basic loop is intentionally small: write markdown, render it in Go, and keep the rendered HTML in memory so the server does not have to re-parse every post on every request.

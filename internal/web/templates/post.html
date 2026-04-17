@@ -16,11 +16,6 @@
       {{ if .Post.Author }}<span>{{ .Post.Author }}</span>{{ end }}
       <span>{{ .Post.ReadTime }} min read</span>
     </div>
-    {{ if .Post.Tags }}
-    <div class="tag-row">
-      {{ range .Post.Tags }}<span class="tag">{{ . }}</span>{{ end }}
-    </div>
-    {{ end }}
   </header>
 
   <div class="markdown-body">{{ .Post.HTML }}</div>

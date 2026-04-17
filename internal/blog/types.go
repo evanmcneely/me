@@ -11,7 +11,6 @@ type Post struct {
 	Description string
 	Author      string
 	PublishedAt time.Time
-	Tags        []string
 	HTML        template.HTML
 	Excerpt     string
 	ReadTime    int

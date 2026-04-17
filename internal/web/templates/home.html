@@ -19,11 +19,6 @@
       </div>
       <h2><a href="/posts/{{ .Slug }}">{{ .Title }}</a></h2>
       <p>{{ .Description }}</p>
-      {{ if .Tags }}
-      <div class="tag-row">
-        {{ range .Tags }}<span class="tag">{{ . }}</span>{{ end }}
-      </div>
-      {{ end }}
     </article>
     {{ end }}
   {{ else }}

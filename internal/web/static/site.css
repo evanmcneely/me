@@ -171,20 +171,11 @@ samp {
 }
 
 .post-card__meta,
-.post-header__meta,
-.tag-row {
+.post-header__meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
   margin-bottom: 0.65rem;
-}
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.15rem 0.45rem;
-  background: rgba(240, 200, 8, 0.18);
-  border: 1px solid rgba(240, 200, 8, 0.45);
 }
 
 .post-layout {
