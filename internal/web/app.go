@@ -222,7 +222,7 @@ func (a *App) serverError(w http.ResponseWriter, r *http.Request, message string
 	a.renderStatus(w, http.StatusInternalServerError, "error.html", errorData{
 		siteData:   a.site("Server Error", r.URL.Path),
 		StatusCode: http.StatusInternalServerError,
-		Heading:    "Opps!",
+		Heading:    "Oops!",
 		Message:    message,
 	})
 }
