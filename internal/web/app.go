@@ -21,7 +21,6 @@ type App struct {
 	templates   *template.Template
 	chromaCSS   template.CSS
 	staticFiles http.Handler
-	assetFiles  http.Handler
 }
 
 type siteData struct {
@@ -71,21 +70,17 @@ func NewApp(service *blog.Service, chromaCSS string) (*App, error) {
 		return nil, err
 	}
 
-	assetFS := http.Dir("assets")
-
 	return &App{
 		service:     service,
 		templates:   tmpl,
 		chromaCSS:   template.CSS(chromaCSS),
 		staticFiles: http.FileServer(http.FS(staticFS)),
-		assetFiles:  http.FileServer(assetFS),
 	}, nil
 }
 
 func (a *App) Routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.StripPrefix("/static/", a.staticFiles))
-	mux.Handle("/assets/", http.StripPrefix("/assets/", a.assetFiles))
 	mux.HandleFunc("/", a.handleHome)
 	mux.HandleFunc("/posts/", a.handlePost)
 	mux.HandleFunc("/tooltips/", a.handleTooltip)
