@@ -1,5 +1,18 @@
 (() => {
   const activeClass = "is-open";
+  const belowClass = "is-below";
+
+  function positionTooltip(button, bubble) {
+    if (!bubble) {
+      return;
+    }
+
+    bubble.classList.remove(belowClass);
+    const rect = bubble.getBoundingClientRect();
+    if (rect.top < 12) {
+      bubble.classList.add(belowClass);
+    }
+  }
 
   async function ensureTooltip(button) {
     const bubble = button.querySelector(".tooltip-bubble");
@@ -32,6 +45,7 @@
     ensureTooltip(button).then((bubble) => {
       if (bubble && button.classList.contains(activeClass)) {
         bubble.hidden = false;
+        positionTooltip(button, bubble);
       }
     });
   }
@@ -59,5 +73,10 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".tooltip-term").forEach(bindTooltip);
+    window.addEventListener("resize", () => {
+      document.querySelectorAll(`.tooltip-term.${activeClass}`).forEach((button) => {
+        positionTooltip(button, button.querySelector(".tooltip-bubble"));
+      });
+    });
   });
 })();

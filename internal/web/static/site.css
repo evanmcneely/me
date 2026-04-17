@@ -339,6 +339,11 @@ samp {
   box-shadow: 0.25rem 0.25rem 0 var(--shadow);
 }
 
+.tooltip-bubble.is-below {
+  top: calc(100% + 0.85rem);
+  bottom: auto;
+}
+
 .tooltip-card > *:last-child {
   margin-bottom: 0;
 }
@@ -368,5 +373,9 @@ samp {
     left: 0;
     bottom: calc(100% + 0.65rem);
     transform: none;
+  }
+
+  .tooltip-bubble.is-below {
+    top: calc(100% + 0.65rem);
   }
 }
