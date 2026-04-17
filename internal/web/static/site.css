@@ -293,7 +293,6 @@ samp {
   overflow-x: auto;
   padding: 1rem;
   background: var(--code-bg);
-  border: 1px solid var(--border);
 }
 
 .markdown-body pre code {
