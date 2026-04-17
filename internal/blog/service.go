@@ -25,7 +25,7 @@ type Service struct {
 	postsDir    string
 	pagesDir    string
 	tooltipsDir string
-	cache       *cache.SQLiteStore
+	cache       *cache.Store
 	renderer    *render.MarkdownRenderer
 }
 
@@ -48,7 +48,7 @@ type tooltipFrontmatter struct {
 	Title string `yaml:"title"`
 }
 
-func NewService(contentDir string, store *cache.SQLiteStore, renderer *render.MarkdownRenderer) *Service {
+func NewService(contentDir string, store *cache.Store, renderer *render.MarkdownRenderer) *Service {
 	return &Service{
 		postsDir:    filepath.Join(contentDir, "posts"),
 		pagesDir:    filepath.Join(contentDir, "pages"),

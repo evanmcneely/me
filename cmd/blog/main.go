@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 
@@ -19,17 +18,8 @@ import (
 func main() {
 	addr := getenv("ADDR", ":8080")
 	contentDir := getenv("CONTENT_DIR", "content")
-	cacheDir := getenv("CACHE_DIR", "data")
 
-	if err := os.MkdirAll(cacheDir, 0o755); err != nil {
-		log.Fatalf("create cache dir: %v", err)
-	}
-
-	cachePath := filepath.Join(cacheDir, "blog-cache.sqlite")
-	store, err := cache.NewSQLiteStore(cachePath)
-	if err != nil {
-		log.Fatalf("open cache store: %v", err)
-	}
+	store := cache.NewStore()
 	defer store.Close()
 
 	renderer := render.NewMarkdownRenderer()
