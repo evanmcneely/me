@@ -7,9 +7,22 @@
       return;
     }
 
+    const viewportPadding = 16;
+
     bubble.classList.remove(belowClass);
-    const rect = bubble.getBoundingClientRect();
-    if (rect.top < 12) {
+    bubble.style.left = "50%";
+    bubble.style.transform = "translateX(-50%)";
+
+    const buttonRect = button.getBoundingClientRect();
+    const bubbleRect = bubble.getBoundingClientRect();
+    const maxLeft = window.innerWidth - viewportPadding - bubbleRect.width;
+    const preferredLeft = buttonRect.left + buttonRect.width / 2 - bubbleRect.width / 2;
+    const clampedLeft = Math.min(Math.max(preferredLeft, viewportPadding), maxLeft);
+
+    bubble.style.left = `${clampedLeft - buttonRect.left}px`;
+    bubble.style.transform = "none";
+
+    if (bubble.getBoundingClientRect().top < 12) {
       bubble.classList.add(belowClass);
     }
   }
