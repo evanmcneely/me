@@ -12,8 +12,8 @@
   <header class="post-header">
     <h1>{{ .Post.Title }}</h1>
     <div class="post-header__meta">
-      <time datetime="{{ isoDate .Post.PublishedAt }}">{{ formatDate .Post.PublishedAt }}</time>
-      {{ if .Post.Author }}<span>{{ .Post.Author }}</span>{{ end }}
+      <time datetime="{{ isoDate .Post.PublishedAt }}">{{ formatDate .Post.PublishedAt }}, </time>
+      {{ if .Post.Author }}<span>{{ .Post.Author }}, </span>{{ end }}
       <span>{{ .Post.ReadTime }} min read</span>
     </div>
   </header>

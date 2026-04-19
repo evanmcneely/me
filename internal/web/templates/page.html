@@ -13,8 +13,8 @@
     <p class="hero__eyebrow">Page</p>
     <h1>{{ .Page.Title }}</h1>
     <div class="post-header__meta">
-      <time datetime="{{ isoDate .Page.UpdatedAt }}">Updated {{ formatDate .Page.UpdatedAt }}</time>
-      <span>Created {{ formatDate .Page.CreatedAt }}</span>
+      <time datetime="{{ isoDate .Page.UpdatedAt }}">Updated {{ formatDate .Page.UpdatedAt }}, </time>
+      <span>Created {{ formatDate .Page.CreatedAt }}, </span>
       <span>{{ .Page.ReadTime }} min read</span>
     </div>
   </header>
