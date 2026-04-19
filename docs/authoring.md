@@ -43,3 +43,11 @@ go run ./cmd/blog
 ```
 
 Then open `http://localhost:8080`.
+
+For live reload while writing posts or pages, use:
+
+```bash
+./scripts/dev.sh
+```
+
+Then open `http://localhost:3000`.
