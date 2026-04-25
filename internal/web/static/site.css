@@ -271,8 +271,16 @@ samp {
 }
 
 .markdown-body img {
+  margin-top: 0.9rem;
   max-width: 100%;
   display: block;
+}
+
+.markdown-body figcaption {
+  margin-bottom: 0.9rem;
+  margin-top: 0.45rem;
+  font-size: 0.9rem;
+  color: var(--muted);
 }
 
 .markdown-body table {
